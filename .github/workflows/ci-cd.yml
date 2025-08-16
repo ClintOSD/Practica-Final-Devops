@@ -1,0 +1,50 @@
+name: Flujo CI/CD
+
+on:
+  push:
+    branches:
+      - main  # O la rama principal de tu proyecto
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+
+      - name: Ejecutar pruebas unitarias
+        run: |
+          pytest
+
+      - name: Iniciar sesión en Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir y subir la imagen de Docker
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tu-app-repo:latest
+
+      - name: Desplegar en Render
+        run: |
+          # Aquí, Render necesita una configuración específica para desplegar automáticamente
+          # El método más común es que Render esté conectado a tu repositorio de GitHub.
+          # Una vez que la imagen se sube a Docker Hub, Render puede ser configurado
+          # para extraerla y desplegarla automáticamente con un Webhook.
+          #
+          # Ejemplo de comando para despliegue manual (sólo para referencia):
+          # echo "Despliegue simulado en Render. La configuración real se hace en la interfaz de Render."
